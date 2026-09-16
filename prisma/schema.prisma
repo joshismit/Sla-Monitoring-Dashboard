@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UploadRun {
+  id            String        @id @default(cuid())
+  filename      String
+  uploadedAt    DateTime      @default(now())
+  totalRows     Int
+  acceptedRows  Int
+  rejectedRows  Int
+  duplicateRows Int
+  status        String
+
+  healthChecks  HealthCheck[]
+
+  @@index([uploadedAt])
+}
+
+model HealthCheck {
+  id          String    @id @default(cuid())
+
+  uploadRunId String
+  uploadRun   UploadRun @relation(fields: [uploadRunId], references: [id], onDelete: Cascade)
+
+  serviceId   String
+  serviceName String
+
+  timestampUtc DateTime
+
+  statusCode  Int
+  latencyMs   Float?
+  agent       String
+  region      String
+
+  isAvailable Boolean
+
+  createdAt   DateTime @default(now())
+
+  @@unique([serviceId, timestampUtc, agent, region])
+
+  @@index([timestampUtc])
+  @@index([serviceId])
+  @@index([serviceName])
+  @@index([statusCode])
+  @@index([uploadRunId])
+}
