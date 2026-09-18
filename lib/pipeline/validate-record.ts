@@ -69,6 +69,17 @@ export function validateRecord(
       });
     }
 
+    if (row._latencyRejected) {
+      // Error already logged in normalizeLatency (NEGATIVE_LATENCY).
+      // latency = 0 is valid; missing latency is never a rejection.
+      rowErrors.push({
+        rowIndex: row.rowIndex,
+        field: "latencyMs",
+        message: "Row rejected: latency is negative",
+        severity: "error",
+      });
+    }
+
     if (row._statusCodeParsed === null) {
       rowErrors.push({
         rowIndex: row.rowIndex,

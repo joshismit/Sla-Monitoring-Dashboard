@@ -6,11 +6,13 @@
  * Each function:
  *   - Accepts the raw string from RawHealthCheck
  *   - Returns the typed value for CleanHealthCheck
- *   - Throws a descriptive Error on invalid input
- *     (the pipeline stage catches and converts to RejectedRecord)
+ *   - Throws a ValidationError on invalid input
+ *     (the pipeline catches it and converts to RejectedRecord)
  *
  * No side effects. No I/O. No database.
  */
+
+import { ValidationError } from "./validators";
 
 // ---------------------------------------------------------------------------
 // Timestamp
@@ -51,7 +53,7 @@ export function normalizeTimestamp(value: string): Date {
   const trimmed = value.trim();
 
   if (trimmed === "") {
-    throw new Error("Timestamp is empty.");
+    throw new ValidationError("INVALID_TIMESTAMP", "Timestamp is empty");
   }
 
   // Unix epoch seconds: pure digit string → no timezone ambiguity possible.
@@ -64,7 +66,10 @@ export function normalizeTimestamp(value: string): Date {
   const date = new Date(trimmed);
 
   if (Number.isNaN(date.getTime())) {
-    throw new Error(`Invalid timestamp: "${trimmed}"`);
+    throw new ValidationError(
+      "INVALID_TIMESTAMP",
+      `"${trimmed}" is not a valid timestamp`,
+    );
   }
 
   return date;
@@ -115,14 +120,16 @@ export function normalizeLatency(
   const parsed = parseFloat(trimmed);
 
   if (Number.isNaN(parsed)) {
-    throw new Error(
-      `INVALID_LATENCY: "${trimmed}" is not a numeric value.`,
+    throw new ValidationError(
+      "INVALID_LATENCY",
+      `"${trimmed}" is not a numeric value`,
     );
   }
 
   if (parsed < 0) {
-    throw new Error(
-      `NEGATIVE_LATENCY: latency must be ≥ 0, got ${parsed}.`,
+    throw new ValidationError(
+      "NEGATIVE_LATENCY",
+      `latency must be ≥ 0, got ${parsed}`,
     );
   }
 
@@ -141,8 +148,47 @@ export function normalizeLatency(
   }
 
   // Unrecognised unit — treat as invalid so the pipeline can flag it.
-  throw new Error(
-    `INVALID_LATENCY: unrecognised unit "${unit}". ` +
-      `Expected one of: ms, s, sec, seconds (or null to assume ms).`,
+  throw new ValidationError(
+    "INVALID_LATENCY",
+    `unrecognised unit "${unit}". ` +
+      `Expected one of: ms, s, sec, seconds (or null to assume ms)`,
   );
+}
+
+// ---------------------------------------------------------------------------
+// Status code
+// ---------------------------------------------------------------------------
+
+/**
+ * Parse and validate a raw HTTP status code string.
+ *
+ * Valid range: whole integers in [100, 599].
+ * "999", "abc", "" all throw INVALID_STATUS.
+ *
+ * @throws {ValidationError} with reason "INVALID_STATUS" if invalid.
+ */
+export function normalizeStatus(value: string): number {
+  const trimmed = value.trim();
+
+  if (trimmed === "") {
+    throw new ValidationError("INVALID_STATUS", "statusCode is missing or empty");
+  }
+
+  const n = Number(trimmed);
+
+  if (!Number.isInteger(n) || Number.isNaN(n)) {
+    throw new ValidationError(
+      "INVALID_STATUS",
+      `"${trimmed}" is not a whole integer`,
+    );
+  }
+
+  if (n < 100 || n > 599) {
+    throw new ValidationError(
+      "INVALID_STATUS",
+      `${n} is outside the valid HTTP range [100, 599]`,
+    );
+  }
+
+  return n;
 }

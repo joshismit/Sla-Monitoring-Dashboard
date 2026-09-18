@@ -77,6 +77,37 @@ describe("deduplicateRecords", () => {
     expect(out).toHaveLength(2);
   });
 
+  it("treats timezone-equivalent timestamps as duplicates (why normalisation precedes deduplication)", () => {
+    // "2025-05-09T14:30:00Z" and "2025-05-09T20:00:00+05:30" are the same
+    // UTC instant — 20:00 IST minus 5h30m = 14:30 UTC.
+    //
+    // String comparison: different → would produce two records. ❌
+    // Date comparison:   same      → correctly produces one record. ✅
+    //
+    // This test proves the pipeline order must be:
+    //   normalizeTimestamp → deduplicateRecords
+    // and NOT:
+    //   deduplicateRecords → normalizeTimestamp
+    //
+    // By the time records reach deduplicateRecords(), _timestampParsed is
+    // already a Date. Both timestamps produce the same toISOString() output
+    // ("2025-05-09T14:30:00.000Z") and therefore the same composite key.
+    const utcInstant    = new Date("2025-05-09T14:30:00Z");       // +00:00
+    const offsetInstant = new Date("2025-05-09T20:00:00+05:30");  // +05:30
+
+    // Sanity-check the fixture: both Dates must represent the same ms.
+    expect(utcInstant.getTime()).toBe(offsetInstant.getTime());
+
+    const records = [
+      makeRecord({ timestampUtc: utcInstant }),
+      makeRecord({ timestampUtc: offsetInstant }),
+    ];
+    const { records: out, duplicateCount } = deduplicateRecords(records, [0, 1]);
+
+    expect(out).toHaveLength(1);       // one accepted
+    expect(duplicateCount).toBe(1);    // one duplicate discarded
+  });
+
   it("handles three copies of the same record", () => {
     const ts = new Date("2024-01-01T00:00:00Z");
     const records = Array(3).fill(makeRecord({ timestampUtc: ts }));

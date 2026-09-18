@@ -127,7 +127,7 @@ describe("normalizeTimestamp", () => {
     it("throws on a plain date without time ('2025-05-09' is ambiguous in some engines — "
       + "the normalizer should handle it, but plain garbage must always throw)", () => {
       // "not-a-date" is definitively garbage
-      expect(() => normalizeTimestamp("not-a-date")).toThrow(/Invalid timestamp/i);
+      expect(() => normalizeTimestamp("not-a-date")).toThrow("INVALID_TIMESTAMP");
     });
 
     it("throws on a decimal Unix string (not pure digits)", () => {
@@ -264,24 +264,24 @@ describe("normalizeLatency", () => {
 
   describe("invalid input", () => {
     it("throws INVALID_LATENCY for a non-numeric string", () => {
-      expect(() => normalizeLatency("fast", "ms")).toThrow(/INVALID_LATENCY/i);
+      expect(() => normalizeLatency("fast", "ms")).toThrow("INVALID_LATENCY");
     });
 
     it("throws INVALID_LATENCY for a string with embedded letters", () => {
-      expect(() => normalizeLatency("100abc", null)).toThrow(/INVALID_LATENCY/i);
+      expect(() => normalizeLatency("100abc", null)).toThrow("INVALID_LATENCY");
     });
 
     it("throws NEGATIVE_LATENCY for a negative value", () => {
-      expect(() => normalizeLatency("-1", "ms")).toThrow(/NEGATIVE_LATENCY/i);
+      expect(() => normalizeLatency("-1", "ms")).toThrow("NEGATIVE_LATENCY");
     });
 
     it("throws NEGATIVE_LATENCY for a negative seconds value", () => {
-      expect(() => normalizeLatency("-0.5", "s")).toThrow(/NEGATIVE_LATENCY/i);
+      expect(() => normalizeLatency("-0.5", "s")).toThrow("NEGATIVE_LATENCY");
     });
 
     it("throws INVALID_LATENCY for an unrecognised unit", () => {
-      expect(() => normalizeLatency("100", "hours")).toThrow(/INVALID_LATENCY/i);
-      expect(() => normalizeLatency("100", "μs")).toThrow(/INVALID_LATENCY/i);
+      expect(() => normalizeLatency("100", "hours")).toThrow("INVALID_LATENCY");
+      expect(() => normalizeLatency("100", "μs")).toThrow("INVALID_LATENCY");
     });
   });
 });

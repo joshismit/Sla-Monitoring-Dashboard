@@ -40,8 +40,12 @@ export function normalizeLatency<TRow extends RawRow>(
     const raw = row.latencyMs ?? "";
 
     if (raw === "") {
-      // Optional field — silently treat as null
-      normalized.push({ ...row, _latencyParsed: null } as TRow & LatencyNormalizedRow);
+      // Optional field — silently treat as null. Missing latency is not an error.
+      normalized.push({
+        ...row,
+        _latencyParsed: null,
+        _latencyRejected: false,
+      } as TRow & LatencyNormalizedRow);
       continue;
     }
 
@@ -56,7 +60,11 @@ export function normalizeLatency<TRow extends RawRow>(
         message: `Latency value "${raw}" has no numeric component`,
         severity: "warning",
       });
-      normalized.push({ ...row, _latencyParsed: null } as TRow & LatencyNormalizedRow);
+      normalized.push({
+        ...row,
+        _latencyParsed: null,
+        _latencyRejected: false,
+      } as TRow & LatencyNormalizedRow);
       continue;
     }
 
@@ -69,7 +77,11 @@ export function normalizeLatency<TRow extends RawRow>(
         message: `Cannot parse latency value: "${raw}"`,
         severity: "warning",
       });
-      normalized.push({ ...row, _latencyParsed: null } as TRow & LatencyNormalizedRow);
+      normalized.push({
+        ...row,
+        _latencyParsed: null,
+        _latencyRejected: false,
+      } as TRow & LatencyNormalizedRow);
       continue;
     }
 

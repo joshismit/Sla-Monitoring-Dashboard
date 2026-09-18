@@ -3,9 +3,29 @@
  *
  * Public entry point for the CSV processing pipeline.
  *
- * Composes all stages in order:
- *   parseCSV → mapColumns → normalizeTimestamps → normalizeLatency
- *   → validateStatus → validateRecord → deduplicateRecords
+ * Stage order (and why it matters):
+ *   1. parseCSV            — raw bytes → string[][]
+ *   2. mapColumns          — string[][] → RawRow[] (canonical field names)
+ *   3. normalizeTimestamps — raw string → Date (UTC instant)        ← must come BEFORE step 7
+ *   4. normalizeLatency    — raw string → number | null (ms)
+ *   5. validateStatus      — raw string → number, derives isAvailable
+ *   6. validateRecord      — assembles HealthCheckRecord, rejects invalid rows
+ *   7. deduplicateRecords  — removes records with the same composite key
+ *
+ * Why normaliseTimestamp (step 3) must precede deduplicateRecords (step 7):
+ *
+ *   The deduplication key includes the timestamp:
+ *     key = [serviceId, timestampUtc.toISOString(), agent, region].join("\x00")
+ *
+ *   Two CSV rows can represent the same instant with different raw strings:
+ *     "2025-05-09T14:30:00Z"        (UTC)
+ *     "2025-05-09T20:00:00+05:30"   (IST — same instant, different string)
+ *
+ *   String comparison: different → two records survive deduplication. ❌
+ *   Date comparison:   same      → one record survives deduplication.  ✅
+ *
+ *   Without normalisation first, the pipeline would produce phantom duplicates
+ *   whenever two monitoring agents report the same check in different timezones.
  *
  * Returns a `PipelineResult` with clean records and a data-quality summary.
  * No Prisma. No database. No API. No React.

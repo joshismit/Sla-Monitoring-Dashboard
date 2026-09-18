@@ -12,6 +12,7 @@
  */
 
 import type { RawRow, RowIssue } from "./types";
+import { isAvailable } from "../csv/availability";
 
 export interface StatusValidatedRow extends RawRow {
   _statusCodeParsed: number | null;
@@ -74,10 +75,10 @@ export function validateStatus(rows: RawRow[]): StatusValidationResult {
     }
 
     // --- Derive / parse isAvailable ---
+    // isAvailable() is the canonical definition — [200, 399].
+    // Import it rather than re-implementing the range inline.
     const derivedAvailable =
-      statusCodeParsed !== null
-        ? statusCodeParsed >= 200 && statusCodeParsed <= 299
-        : null;
+      statusCodeParsed !== null ? isAvailable(statusCodeParsed) : null;
 
     let isAvailableParsed: boolean | null = derivedAvailable;
 
