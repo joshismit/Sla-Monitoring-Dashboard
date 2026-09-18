@@ -1,4 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SLA Monitoring Dashboard
+
+## Architecture
+
+Browser
+  ↓
+Next.js upload UI
+  ↓
+POST /api/upload
+  ↓
+Vercel Serverless Function
+  ↓
+CSV parsing and data-quality pipeline
+  ↓
+Prisma
+  ↓
+Neon PostgreSQL
+  ↓
+Dashboard query APIs
+
+### Serverless Ingestion
+
+CSV ingestion is implemented in:
+`app/api/upload/route.ts`
+
+This route is deployed as a Vercel serverless function.
+The browser sends the raw CSV to this endpoint. Parsing,
+validation, normalization, deduplication and database
+persistence happen server-side inside the deployed function.
+
+### Why Vercel Functions?
+
+The assignment explicitly requires a deployed stateless
+serverless processing function. Vercel Functions integrates
+naturally with the Next.js application and avoids introducing
+a separate backend deployment for this small application.
+
+### Why PostgreSQL?
+
+The dashboard needs relational filtering across services,
+timestamps, agents and status information. PostgreSQL also
+provides unique constraints and transactional writes, which
+are useful for maintaining data integrity during ingestion.
 
 ## Getting Started
 
