@@ -117,7 +117,7 @@ export function normalizeLatency(
   const trimmed = value.trim();
   if (trimmed === "") return null;
 
-  const parsed = parseFloat(trimmed);
+  const parsed = Number(trimmed);
 
   if (Number.isNaN(parsed)) {
     throw new ValidationError(

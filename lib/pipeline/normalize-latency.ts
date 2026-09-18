@@ -68,7 +68,7 @@ export function normalizeLatency<TRow extends RawRow>(
       continue;
     }
 
-    const parsed = parseFloat(stripped);
+    const parsed = Number(stripped);
 
     if (isNaN(parsed)) {
       issues.push({
@@ -92,7 +92,7 @@ export function normalizeLatency<TRow extends RawRow>(
         rowIndex: row.rowIndex,
         field: "latencyMs",
         message: `NEGATIVE_LATENCY: latency must be ≥ 0, got ${parsed}ms`,
-        severity: "error",
+        severity: "warning",
       });
       normalized.push({
         ...row,

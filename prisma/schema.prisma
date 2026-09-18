@@ -16,34 +16,26 @@ model UploadRun {
   rejectedRows  Int
   duplicateRows Int
   status        String
-
   healthChecks  HealthCheck[]
 
   @@index([uploadedAt])
 }
 
 model HealthCheck {
-  id          String    @id @default(cuid())
-
-  uploadRunId String
-  uploadRun   UploadRun @relation(fields: [uploadRunId], references: [id], onDelete: Cascade)
-
-  serviceId   String
-  serviceName String
-
+  id           String    @id @default(cuid())
+  uploadRunId  String
+  serviceId    String
+  serviceName  String
   timestampUtc DateTime
-
-  statusCode  Int
-  latencyMs   Float?
-  agent       String
-  region      String
-
-  isAvailable Boolean
-
-  createdAt   DateTime @default(now())
+  statusCode   Int
+  latencyMs    Float?
+  agent        String
+  region       String
+  isAvailable  Boolean
+  createdAt    DateTime  @default(now())
+  uploadRun    UploadRun @relation(fields: [uploadRunId], references: [id], onDelete: Cascade)
 
   @@unique([serviceId, timestampUtc, agent, region])
-
   @@index([timestampUtc])
   @@index([serviceId])
   @@index([serviceName])
