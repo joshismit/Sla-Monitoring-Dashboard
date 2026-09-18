@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { normalizeTimestamp, normalizeLatency } from "@/lib/csv/normalizers";
+import { normalizeTimestamp, normalizeLatency, normalizeStatus } from "@/lib/csv/normalizers";
 
 // ---------------------------------------------------------------------------
 // Equivalent-timestamp constants
@@ -282,6 +282,71 @@ describe("normalizeLatency", () => {
     it("throws INVALID_LATENCY for an unrecognised unit", () => {
       expect(() => normalizeLatency("100", "hours")).toThrow("INVALID_LATENCY");
       expect(() => normalizeLatency("100", "μs")).toThrow("INVALID_LATENCY");
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// normalizeStatus
+// ---------------------------------------------------------------------------
+
+describe("normalizeStatus", () => {
+  describe("valid status codes", () => {
+    it('"200" → 200', () => {
+      expect(normalizeStatus("200")).toBe(200);
+    });
+
+    it('"500" → 500', () => {
+      expect(normalizeStatus("500")).toBe(500);
+    });
+
+    it('"502" → 502', () => {
+      expect(normalizeStatus("502")).toBe(502);
+    });
+
+    it('"503" → 503', () => {
+      expect(normalizeStatus("503")).toBe(503);
+    });
+
+    it("accepts boundary values 100 and 599", () => {
+      expect(normalizeStatus("100")).toBe(100);
+      expect(normalizeStatus("599")).toBe(599);
+    });
+
+    it("trims surrounding whitespace", () => {
+      expect(normalizeStatus("  200  ")).toBe(200);
+    });
+
+    it("returns a number, not a string", () => {
+      expect(typeof normalizeStatus("200")).toBe("number");
+    });
+  });
+
+  describe("invalid status codes", () => {
+    it('"999" throws INVALID_STATUS — validated by range, not by enumeration', () => {
+      // The range check [100, 599] rejects 999 naturally.
+      // There is no if (status === 999) anywhere in the codebase.
+      expect(() => normalizeStatus("999")).toThrow("INVALID_STATUS");
+    });
+
+    it("99 throws INVALID_STATUS (below 100)", () => {
+      expect(() => normalizeStatus("99")).toThrow("INVALID_STATUS");
+    });
+
+    it("600 throws INVALID_STATUS (above 599)", () => {
+      expect(() => normalizeStatus("600")).toThrow("INVALID_STATUS");
+    });
+
+    it("empty string throws INVALID_STATUS", () => {
+      expect(() => normalizeStatus("")).toThrow("INVALID_STATUS");
+    });
+
+    it("non-integer '200.5' throws INVALID_STATUS", () => {
+      expect(() => normalizeStatus("200.5")).toThrow("INVALID_STATUS");
+    });
+
+    it("non-numeric 'OK' throws INVALID_STATUS", () => {
+      expect(() => normalizeStatus("OK")).toThrow("INVALID_STATUS");
     });
   });
 });
