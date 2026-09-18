@@ -69,3 +69,80 @@ export function normalizeTimestamp(value: string): Date {
 
   return date;
 }
+
+// ---------------------------------------------------------------------------
+// Latency
+// ---------------------------------------------------------------------------
+
+/**
+ * Unit strings the normaliser recognises as seconds.
+ * Compared against the lower-cased latencyUnit from RawHealthCheck.
+ */
+const SECONDS_UNITS = new Set(["s", "sec", "secs", "second", "seconds"]);
+
+/**
+ * Unit strings the normaliser recognises as milliseconds.
+ * null is also treated as milliseconds (the parser defaults to ms when the
+ * column name implies it, e.g. "latency_ms").
+ */
+const MS_UNITS = new Set(["ms", "milli", "millis", "millisecond", "milliseconds"]);
+
+/**
+ * Normalise a raw latency value to milliseconds.
+ *
+ * Rules:
+ *   - null value              → null   (column absent or empty — not an error)
+ *   - non-numeric value       → throws (pipeline maps to INVALID_LATENCY)
+ *   - negative value          → throws (pipeline maps to NEGATIVE_LATENCY)
+ *   - unit "ms" or null unit  → value as-is (already milliseconds)
+ *   - unit "s" / "sec" / …   → value × 1000  (no rounding; precision preserved)
+ *
+ * @param value - The numeric portion of the latency string, or null if absent.
+ * @param unit  - The unit suffix (lower-cased by the parser), or null.
+ * @returns Latency in milliseconds, or null when value is null.
+ * @throws {Error} When value is present but non-numeric or negative.
+ */
+export function normalizeLatency(
+  value: string | null,
+  unit: string | null,
+): number | null {
+  // Absent / empty column — not an error, just no latency data.
+  if (value === null) return null;
+
+  const trimmed = value.trim();
+  if (trimmed === "") return null;
+
+  const parsed = parseFloat(trimmed);
+
+  if (Number.isNaN(parsed)) {
+    throw new Error(
+      `INVALID_LATENCY: "${trimmed}" is not a numeric value.`,
+    );
+  }
+
+  if (parsed < 0) {
+    throw new Error(
+      `NEGATIVE_LATENCY: latency must be ≥ 0, got ${parsed}.`,
+    );
+  }
+
+  // Resolve the unit — normalise to lowercase for comparison.
+  const lowerUnit = unit?.trim().toLowerCase() ?? null;
+
+  if (lowerUnit === null || MS_UNITS.has(lowerUnit)) {
+    // Already in milliseconds (or assumed to be).
+    return parsed;
+  }
+
+  if (SECONDS_UNITS.has(lowerUnit)) {
+    // Convert seconds → milliseconds. Multiply preserves full float precision;
+    // no rounding is applied (e.g. 0.717 s → 717 ms exactly).
+    return parsed * 1000;
+  }
+
+  // Unrecognised unit — treat as invalid so the pipeline can flag it.
+  throw new Error(
+    `INVALID_LATENCY: unrecognised unit "${unit}". ` +
+      `Expected one of: ms, s, sec, seconds (or null to assume ms).`,
+  );
+}

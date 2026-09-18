@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { normalizeTimestamp } from "@/lib/csv/normalizers";
+import { normalizeTimestamp, normalizeLatency } from "@/lib/csv/normalizers";
 
 // ---------------------------------------------------------------------------
 // Equivalent-timestamp constants
@@ -149,6 +149,139 @@ describe("normalizeTimestamp", () => {
         // Threw — also acceptable; the important thing is it doesn't silently
         // return the correct time.
       }
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// normalizeLatency
+// ---------------------------------------------------------------------------
+
+describe("normalizeLatency", () => {
+  // -------------------------------------------------------------------------
+  // Null / absent — not an error
+  // -------------------------------------------------------------------------
+
+  describe("null / absent value", () => {
+    it("returns null when value is null", () => {
+      expect(normalizeLatency(null, null)).toBeNull();
+    });
+
+    it("returns null when value is null regardless of unit", () => {
+      expect(normalizeLatency(null, "ms")).toBeNull();
+      expect(normalizeLatency(null, "s")).toBeNull();
+    });
+
+    it("returns null for an empty string value", () => {
+      expect(normalizeLatency("", null)).toBeNull();
+      expect(normalizeLatency("  ", "ms")).toBeNull();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Milliseconds
+  // -------------------------------------------------------------------------
+
+  describe("milliseconds (unit = 'ms' or null)", () => {
+    it("100 ms → 100", () => {
+      expect(normalizeLatency("100", "ms")).toBe(100);
+    });
+
+    it("null unit → assumed ms, value returned as-is", () => {
+      expect(normalizeLatency("250", null)).toBe(250);
+    });
+
+    it("preserves float precision in ms", () => {
+      expect(normalizeLatency("142.7", "ms")).toBe(142.7);
+    });
+
+    it("accepts 0 ms", () => {
+      expect(normalizeLatency("0", "ms")).toBe(0);
+    });
+
+    it("accepts unit variants: millis, millisecond, milliseconds", () => {
+      expect(normalizeLatency("50", "millis")).toBe(50);
+      expect(normalizeLatency("50", "millisecond")).toBe(50);
+      expect(normalizeLatency("50", "milliseconds")).toBe(50);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Seconds → milliseconds
+  // -------------------------------------------------------------------------
+
+  describe("seconds → milliseconds conversion", () => {
+    it("0.717 s → 717 ms", () => {
+      // The key example from the spec: no rounding, exact multiply.
+      expect(normalizeLatency("0.717", "s")).toBe(717);
+    });
+
+    it("1 s → 1000 ms", () => {
+      expect(normalizeLatency("1", "s")).toBe(1000);
+    });
+
+    it("0.001 s → 1 ms (precision preserved)", () => {
+      expect(normalizeLatency("0.001", "s")).toBeCloseTo(1, 10);
+    });
+
+    it("2.5 s → 2500 ms", () => {
+      expect(normalizeLatency("2.5", "s")).toBe(2500);
+    });
+
+    it("accepts unit variants: sec, secs, second, seconds", () => {
+      expect(normalizeLatency("1", "sec")).toBe(1000);
+      expect(normalizeLatency("1", "secs")).toBe(1000);
+      expect(normalizeLatency("1", "second")).toBe(1000);
+      expect(normalizeLatency("1", "seconds")).toBe(1000);
+    });
+
+    it("unit comparison is case-insensitive", () => {
+      expect(normalizeLatency("1", "S")).toBe(1000);
+      expect(normalizeLatency("100", "MS")).toBe(100);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // No rounding — precision invariant
+  // -------------------------------------------------------------------------
+
+  describe("precision preservation", () => {
+    it("does not round when converting seconds", () => {
+      // 0.717 * 1000 = 717 exactly in IEEE 754 double
+      const result = normalizeLatency("0.717", "s");
+      expect(result).toBe(717);
+      expect(Number.isInteger(result)).toBe(true);
+    });
+
+    it("preserves sub-millisecond precision in ms unit", () => {
+      expect(normalizeLatency("99.999", "ms")).toBe(99.999);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Invalid input — must throw
+  // -------------------------------------------------------------------------
+
+  describe("invalid input", () => {
+    it("throws INVALID_LATENCY for a non-numeric string", () => {
+      expect(() => normalizeLatency("fast", "ms")).toThrow(/INVALID_LATENCY/i);
+    });
+
+    it("throws INVALID_LATENCY for a string with embedded letters", () => {
+      expect(() => normalizeLatency("100abc", null)).toThrow(/INVALID_LATENCY/i);
+    });
+
+    it("throws NEGATIVE_LATENCY for a negative value", () => {
+      expect(() => normalizeLatency("-1", "ms")).toThrow(/NEGATIVE_LATENCY/i);
+    });
+
+    it("throws NEGATIVE_LATENCY for a negative seconds value", () => {
+      expect(() => normalizeLatency("-0.5", "s")).toThrow(/NEGATIVE_LATENCY/i);
+    });
+
+    it("throws INVALID_LATENCY for an unrecognised unit", () => {
+      expect(() => normalizeLatency("100", "hours")).toThrow(/INVALID_LATENCY/i);
+      expect(() => normalizeLatency("100", "μs")).toThrow(/INVALID_LATENCY/i);
     });
   });
 });

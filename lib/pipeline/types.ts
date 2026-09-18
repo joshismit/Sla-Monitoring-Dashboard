@@ -6,6 +6,16 @@
  */
 
 // ---------------------------------------------------------------------------
+// Temporal extent — derived from the data, never hardcoded.
+// ---------------------------------------------------------------------------
+export interface DateRange {
+  /** Earliest timestampUtc across all accepted records. */
+  min: Date;
+  /** Latest timestampUtc across all accepted records. */
+  max: Date;
+}
+
+// ---------------------------------------------------------------------------
 // Output record — mirrors the Prisma HealthCheck model fields that come from
 // raw CSV data (no DB-only fields: id, uploadRunId, createdAt).
 // ---------------------------------------------------------------------------
@@ -70,6 +80,11 @@ export interface DataQualitySummary {
   rejectedRows: number;
   duplicateRows: number;
   issues: RowIssue[];
+  /**
+   * Temporal extent of the accepted dataset — derived from the data,
+   * never hardcoded. null when acceptedRows === 0.
+   */
+  dateRange: DateRange | null;
 }
 
 export interface PipelineResult {

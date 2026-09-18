@@ -6,15 +6,23 @@
  * Rules:
  *   - Strip trailing "ms" suffix (case-insensitive) and whitespace.
  *   - Parse as float.
- *   - Negative values → null + severity:'warning'  (data present but unusable)
- *   - Non-numeric strings → null + severity:'warning'
+ *   - Negative values    → _latencyRejected: true  + severity:'error'  (row must be rejected)
+ *   - Non-numeric strings → null + severity:'warning'  (data present but unparseable)
  *   - Absent / empty string → null  (column is optional; no issue logged)
+ *
+ * Note: latency = 0 is valid. Only strictly negative values are rejected.
+ * Missing latency is never a rejection — the field is optional.
  */
 
 import type { RawRow, RowIssue } from "./types";
 
 export interface LatencyNormalizedRow extends RawRow {
   _latencyParsed: number | null;
+  /**
+   * true only when the latency value was present but negative.
+   * Absent latency leaves this false — missing is not an error.
+   */
+  _latencyRejected: boolean;
 }
 
 export interface LatencyNormalizationResult<TRow extends RawRow> {
@@ -66,17 +74,27 @@ export function normalizeLatency<TRow extends RawRow>(
     }
 
     if (parsed < 0) {
+      // Negative latency is invalid data — reject the row (NEGATIVE_LATENCY).
+      // Zero is valid; only strictly < 0 is rejected.
       issues.push({
         rowIndex: row.rowIndex,
         field: "latencyMs",
-        message: `Latency is negative (${parsed}ms) — treating as null`,
-        severity: "warning",
+        message: `NEGATIVE_LATENCY: latency must be ≥ 0, got ${parsed}ms`,
+        severity: "error",
       });
-      normalized.push({ ...row, _latencyParsed: null } as TRow & LatencyNormalizedRow);
+      normalized.push({
+        ...row,
+        _latencyParsed: null,
+        _latencyRejected: true,
+      } as TRow & LatencyNormalizedRow);
       continue;
     }
 
-    normalized.push({ ...row, _latencyParsed: parsed } as TRow & LatencyNormalizedRow);
+    normalized.push({
+      ...row,
+      _latencyParsed: parsed,
+      _latencyRejected: false,
+    } as TRow & LatencyNormalizedRow);
   }
 
   return { rows: normalized, issues };

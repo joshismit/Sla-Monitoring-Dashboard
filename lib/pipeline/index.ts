@@ -18,6 +18,7 @@ import { normalizeLatency } from "./normalize-latency";
 import { validateStatus } from "./validate-status";
 import { validateRecord, type PreValidatedRow } from "./validate-record";
 import { deduplicateRecords } from "./deduplicate";
+import { deriveDateRange } from "../csv/derive-date-range";
 import type { PipelineResult, RowIssue, RawRow } from "./types";
 
 export type { PipelineResult, HealthCheckRecord, DataQualitySummary, RowIssue } from "./types";
@@ -111,6 +112,8 @@ export function runPipeline(input: string | Buffer): PipelineResult {
       rejectedRows,
       duplicateRows: duplicateCount,
       issues: allIssues,
+      // Derived from the accepted records — never hardcoded.
+      dateRange: deriveDateRange(uniqueRecords),
     },
   };
 }
