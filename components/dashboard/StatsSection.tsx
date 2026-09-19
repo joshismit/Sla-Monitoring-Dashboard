@@ -53,7 +53,7 @@ export function StatsSection({ refreshTrigger }: StatsSectionProps) {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
   };
 
   if (isLoading && !data) {
@@ -91,18 +91,18 @@ export function StatsSection({ refreshTrigger }: StatsSectionProps) {
   }
 
   return (
-    <div className="w-full bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300">
+    <div className="w-full bg-[#131627] backdrop-blur-xl border border-[#232743] rounded-3xl overflow-hidden shadow-2xl transition-all duration-300">
       <button 
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-6 md:px-8 py-5 flex items-center justify-between hover:bg-gray-800/30 transition-colors"
+        className="w-full px-8 md:px-10 py-6 flex items-center justify-between hover:bg-[#1A1E36] transition-colors"
       >
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
-            <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 shadow-inner">
+            <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-white">Monitoring Statistics</h2>
+          <h2 className="text-2xl font-bold text-white tracking-wide">Monitoring Statistics</h2>
         </div>
         <svg 
           className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} 
@@ -113,66 +113,63 @@ export function StatsSection({ refreshTrigger }: StatsSectionProps) {
       </button>
 
       {isExpanded && (
-        <div className="p-6 md:p-8 border-t border-gray-800/50 animate-fade-in-up">
+        <div className="p-8 md:p-10 border-t border-[#232743] animate-fade-in-up">
           {/* Top Level KPIs */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
-            <div className="bg-gray-800/30 rounded-2xl p-5 border border-gray-700/50 flex flex-col justify-center">
-              <span className="text-gray-400 text-sm font-medium mb-1 uppercase tracking-wider">Overall Availability</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-10">
+            <div className="bg-[#0B0D17]/50 rounded-2xl p-6 border border-[#232743]/60 flex flex-col justify-center">
+              <span className="text-slate-400 text-sm font-medium mb-2 uppercase tracking-wider">Overall Availability</span>
               <div className="flex items-baseline gap-2">
-                <span className={`text-4xl font-extrabold tracking-tight ${data.overallAvailabilityPercentage >= 99 ? 'text-emerald-400' : data.overallAvailabilityPercentage >= 95 ? 'text-yellow-400' : 'text-red-400'}`}>
+                <span className={`text-5xl font-extrabold tracking-tight ${data.overallAvailabilityPercentage >= 99 ? 'text-emerald-400' : data.overallAvailabilityPercentage >= 95 ? 'text-yellow-400' : 'text-red-400'}`}>
                   {data.overallAvailabilityPercentage}%
                 </span>
               </div>
             </div>
             
-            <div className="bg-gray-800/30 rounded-2xl p-5 border border-gray-700/50 flex flex-col justify-center">
-              <span className="text-gray-400 text-sm font-medium mb-1 uppercase tracking-wider">Total Checks</span>
-              <span className="text-3xl font-bold text-white tracking-tight">{data.totalHealthChecks.toLocaleString()}</span>
+            <div className="bg-[#0B0D17]/50 rounded-2xl p-6 border border-[#232743]/60 flex flex-col justify-center">
+              <span className="text-slate-400 text-sm font-medium mb-2 uppercase tracking-wider">Total Checks</span>
+              <span className="text-4xl font-bold text-white tracking-tight">{data.totalHealthChecks.toLocaleString()}</span>
             </div>
 
-            <div className="bg-gray-800/30 rounded-2xl p-5 border border-gray-700/50 flex flex-col justify-center">
-              <span className="text-gray-400 text-sm font-medium mb-1 uppercase tracking-wider">Failed Checks</span>
-              <span className={`text-3xl font-bold tracking-tight ${data.failedChecks > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+            <div className="bg-[#0B0D17]/50 rounded-2xl p-6 border border-[#232743]/60 flex flex-col justify-center">
+              <span className="text-slate-400 text-sm font-medium mb-2 uppercase tracking-wider">Failed Checks</span>
+              <span className={`text-4xl font-bold tracking-tight ${data.failedChecks > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
                 {data.failedChecks.toLocaleString()}
               </span>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-sm text-gray-400 mb-4 px-2">
-            <p>Services: <span className="text-gray-200 font-semibold">{data.servicesMonitored}</span></p>
-            <p>Period: <span className="text-gray-200 font-medium">{formatDate(data.monitoringStart)}</span> – <span className="text-gray-200 font-medium">{formatDate(data.monitoringEnd)}</span></p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-sm text-slate-400 mb-4 px-2">
+            <p>Services: <span className="text-slate-200 font-semibold">{data.servicesMonitored}</span></p>
+            <p>Period: <span className="text-slate-200 font-medium">{formatDate(data.monitoringStart)}</span> – <span className="text-slate-200 font-medium">{formatDate(data.monitoringEnd)}</span></p>
           </div>
 
           {/* Per-Service Table */}
-          <div className="overflow-x-auto rounded-xl border border-gray-800">
-            <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto rounded-xl border border-[#232743]">
+            <table className="w-full text-left border-collapse min-w-max">
               <thead>
-                <tr className="bg-gray-800/60 text-gray-300 text-xs uppercase tracking-wider border-b border-gray-700">
-                  <th className="px-6 py-4 font-semibold">Service</th>
-                  <th className="px-6 py-4 font-semibold text-right">Checks</th>
-                  <th className="px-6 py-4 font-semibold text-right">Failed</th>
-                  <th className="px-6 py-4 font-semibold text-right">Availability</th>
+                <tr className="bg-[#0B0D17]/80 text-slate-300 text-xs uppercase tracking-wider border-b border-[#232743]">
+                  <th className="px-6 py-5 font-semibold">Service</th>
+                  <th className="px-6 py-5 font-semibold text-right">Checks</th>
+                  <th className="px-6 py-5 font-semibold text-right">Failed</th>
+                  <th className="px-6 py-5 font-semibold text-right">Availability</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800/60 bg-gray-900/20">
+              <tbody className="divide-y divide-[#232743]/60 bg-[#131627]">
                 {data.perServiceStats.map((service) => (
-                  <tr key={service.serviceName} className="hover:bg-gray-800/40 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-200">{service.serviceName}</div>
+                  <tr key={service.serviceName} className="hover:bg-[#1A1E36] transition-colors">
+                    <td className="px-6 py-5 whitespace-nowrap">
+                      <div className="font-medium text-slate-200">{service.serviceName}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right font-mono text-gray-400 text-sm">
+                    <td className="px-6 py-5 whitespace-nowrap text-right font-mono text-slate-400 text-sm">
                       {service.totalChecks.toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right font-mono text-sm">
-                      <span className={service.failedChecks > 0 ? 'text-red-400 bg-red-400/10 px-2 py-1 rounded-md' : 'text-gray-500'}>
+                    <td className="px-6 py-5 whitespace-nowrap text-right font-mono text-sm">
+                      <span className={service.failedChecks > 0 ? 'text-red-400' : 'text-emerald-400'}>
                         {service.failedChecks.toLocaleString()}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <span className={`font-semibold ${
-                        service.availabilityPercentage >= 99 ? 'text-emerald-400' : 
-                        service.availabilityPercentage >= 95 ? 'text-yellow-400' : 'text-red-400'
-                      }`}>
+                    <td className="px-6 py-5 whitespace-nowrap text-right font-mono font-semibold">
+                      <span className={service.availabilityPercentage >= 99 ? 'text-emerald-400' : service.availabilityPercentage >= 95 ? 'text-yellow-400' : 'text-red-400'}>
                         {service.availabilityPercentage}%
                       </span>
                     </td>

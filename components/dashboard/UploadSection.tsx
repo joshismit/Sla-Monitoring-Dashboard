@@ -59,17 +59,17 @@ export function UploadSection({ onUploadSuccess }: UploadSectionProps) {
   };
 
   return (
-    <div className="w-full bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-3xl p-6 md:p-8 shadow-2xl transition-all duration-300">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
-          <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="w-full bg-[#131627] backdrop-blur-xl border border-[#232743] rounded-3xl p-8 md:p-10 shadow-2xl transition-all duration-300">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 shadow-inner">
+          <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
           </svg>
         </div>
-        <h2 className="text-xl font-semibold text-white">Upload Data</h2>
+        <h2 className="text-2xl font-bold text-white tracking-wide">Upload Data</h2>
       </div>
 
-      <form onSubmit={handleUpload} className="flex flex-col gap-6">
+      <form onSubmit={handleUpload} className="flex flex-col gap-8">
         <div className="relative group">
           <input
             type="file"
@@ -80,30 +80,30 @@ export function UploadSection({ onUploadSuccess }: UploadSectionProps) {
           />
           <label
             htmlFor="file-upload"
-            className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 ${
+            className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 ${
               file
                 ? "border-indigo-500 bg-indigo-500/10"
-                : "border-gray-700 bg-gray-800/30 hover:border-indigo-400 hover:bg-gray-800/60"
+                : "border-[#2A3052] bg-[#171A2E] hover:border-indigo-400 hover:bg-[#1C203A]"
             }`}
           >
-            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+            <div className="flex flex-col items-center justify-center p-6 text-center">
               {file ? (
                 <>
-                  <svg className="w-8 h-8 text-indigo-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-10 h-10 text-indigo-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <p className="text-sm text-indigo-300 font-medium">{file.name}</p>
-                  <p className="text-xs text-indigo-400/70 mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  <p className="text-base text-indigo-300 font-medium">{file.name}</p>
+                  <p className="text-sm text-indigo-400/70 mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                 </>
               ) : (
                 <>
-                  <svg className="w-8 h-8 text-gray-400 mb-2 group-hover:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-10 h-10 text-slate-400 mb-3 group-hover:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
-                  <p className="mb-1 text-sm text-gray-300">
-                    <span className="font-semibold hover:text-indigo-300 transition-colors">Click to upload</span> or drag and drop
+                  <p className="mb-2 text-base text-slate-300">
+                    <span className="font-semibold text-white group-hover:text-indigo-300 transition-colors">Click to upload</span> or drag and drop
                   </p>
-                  <p className="text-xs text-gray-500">CSV files only (MAX. 10MB)</p>
+                  <p className="text-sm text-slate-500">CSV files only (MAX. 10MB)</p>
                 </>
               )}
             </div>
@@ -122,15 +122,15 @@ export function UploadSection({ onUploadSuccess }: UploadSectionProps) {
         <button
           type="submit"
           disabled={!file || isUploading}
-          className={`relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white shadow-lg transition-all duration-300 ${
+          className={`relative w-full flex justify-center py-4 px-6 border border-transparent text-base font-semibold rounded-xl text-white shadow-lg transition-all duration-300 ${
             !file || isUploading
-              ? "bg-gray-800 cursor-not-allowed opacity-70"
+              ? "bg-slate-800 border-slate-700 cursor-not-allowed text-slate-400"
               : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 hover:shadow-indigo-500/25 active:scale-[0.98]"
           }`}
         >
           {isUploading ? (
-            <span className="flex items-center gap-2">
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <span className="flex items-center gap-3">
+              <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -170,10 +170,10 @@ export function UploadSection({ onUploadSuccess }: UploadSectionProps) {
   );
 }
 
-function StatCard({ label, value, color = "text-gray-200" }: { label: string; value: number; color?: string }) {
+function StatCard({ label, value, color = "text-slate-200" }: { label: string; value: number; color?: string }) {
   return (
-    <div className="bg-gray-900/40 rounded-xl p-3 border border-gray-800/60 flex flex-col justify-between">
-      <span className="text-gray-500 text-[10px] font-medium uppercase tracking-wider mb-1">{label}</span>
+    <div className="bg-[#0B0D17]/50 rounded-xl p-3 border border-[#232743]/60 flex flex-col justify-between">
+      <span className="text-slate-500 text-[10px] font-medium uppercase tracking-wider mb-1">{label}</span>
       <span className={`text-lg font-bold ${color}`}>{value.toLocaleString()}</span>
     </div>
   );
