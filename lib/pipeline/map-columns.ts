@@ -96,7 +96,7 @@ export function mapColumns(parsed: ParsedCSV): ColumnMappingResult {
         // Only assign non-empty strings; treat empty string as absent.
         const trimmed = value.trim();
         if (trimmed !== "") {
-          (row as Record<string, string | number>)[canonical] = trimmed;
+          (row as unknown as Record<string, string | number>)[canonical] = trimmed;
         }
       }
     });

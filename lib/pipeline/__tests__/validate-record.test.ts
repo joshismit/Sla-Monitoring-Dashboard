@@ -13,6 +13,7 @@ function makeRow(overrides: Partial<PreValidatedRow> = {}): PreValidatedRow {
     region: "us-east",
     _timestampParsed: new Date("2024-01-01T00:00:00Z"),
     _latencyParsed: 42,
+    _latencyRejected: false,
     _statusCodeParsed: 200,
     _isAvailableParsed: true,
     ...overrides,
