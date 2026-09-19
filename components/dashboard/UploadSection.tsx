@@ -59,7 +59,7 @@ export function UploadSection({ onUploadSuccess }: UploadSectionProps) {
   };
 
   return (
-    <div className="w-full bg-[#131627] backdrop-blur-xl border border-[#232743] rounded-3xl p-8 md:p-10 shadow-2xl transition-all duration-300">
+    <div className="w-full bg-[#131627] backdrop-blur-xl border border-[#232743] rounded-3xl px-10 py-8 md:px-12 md:py-10 shadow-2xl transition-all duration-300">
       <div className="flex items-center gap-4 mb-8">
         <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 shadow-inner">
           <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

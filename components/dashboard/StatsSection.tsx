@@ -91,10 +91,10 @@ export function StatsSection({ refreshTrigger }: StatsSectionProps) {
   }
 
   return (
-    <div className="w-full bg-[#131627] backdrop-blur-xl border border-[#232743] rounded-3xl overflow-hidden shadow-2xl transition-all duration-300">
+    <div className="w-full bg-[#131627] backdrop-blur-xl border border-[#232743] rounded-3xl shadow-2xl transition-all duration-300">
       <button 
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-8 md:px-10 py-6 flex items-center justify-between hover:bg-[#1A1E36] transition-colors"
+        className="w-full px-10 md:px-12 py-7 flex items-center justify-between hover:bg-[#1A1E36] transition-colors rounded-t-3xl"
       >
         <div className="flex items-center gap-4">
           <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 shadow-inner">
@@ -113,7 +113,7 @@ export function StatsSection({ refreshTrigger }: StatsSectionProps) {
       </button>
 
       {isExpanded && (
-        <div className="p-8 md:p-10 border-t border-[#232743] animate-fade-in-up">
+        <div className="px-10 md:px-12 py-8 md:py-10 border-t border-[#232743] animate-fade-in-up">
           {/* Top Level KPIs */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-10">
             <div className="bg-[#0B0D17]/50 rounded-2xl p-6 border border-[#232743]/60 flex flex-col justify-center">

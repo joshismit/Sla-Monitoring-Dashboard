@@ -102,8 +102,8 @@ export function LogsSection({ refreshTrigger }: LogsSectionProps) {
   };
 
   return (
-    <div className="w-full bg-[#131627] backdrop-blur-xl border border-[#232743] rounded-3xl overflow-hidden shadow-2xl transition-all duration-300">
-      <div className="px-8 md:px-10 py-6 flex items-center gap-4 border-b border-[#232743]">
+    <div className="w-full bg-[#131627] backdrop-blur-xl border border-[#232743] rounded-3xl shadow-2xl transition-all duration-300">
+      <div className="px-10 md:px-12 py-7 flex items-center gap-4 border-b border-[#232743]">
         <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 shadow-inner">
           <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
@@ -112,7 +112,7 @@ export function LogsSection({ refreshTrigger }: LogsSectionProps) {
         <h2 className="text-2xl font-bold text-white tracking-wide">System Logs</h2>
       </div>
 
-      <div className="p-8 md:p-10">
+      <div className="px-10 md:px-12 py-8 md:py-10">
         {/* Filters */}
         <div className="bg-[#0B0D17]/50 rounded-2xl p-5 md:p-6 border border-[#232743]/60 mb-8 flex flex-wrap gap-6 items-end">
           <div className="flex flex-col gap-2 flex-1 min-w-[150px]">
@@ -256,7 +256,7 @@ export function LogsSection({ refreshTrigger }: LogsSectionProps) {
 
         {/* Pagination */}
         {pagination && pagination.totalPages > 0 && (
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="mt-8 mb-2 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-slate-400">
               Showing <span className="font-semibold text-slate-200">{(pagination.page - 1) * pagination.pageSize + 1}</span> to <span className="font-semibold text-slate-200">{Math.min(pagination.page * pagination.pageSize, pagination.total)}</span> of <span className="font-semibold text-slate-200">{pagination.total.toLocaleString()}</span> entries
             </p>
